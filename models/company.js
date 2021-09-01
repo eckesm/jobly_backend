@@ -17,6 +17,7 @@ class Company {
    * */
 
 	static async create({ handle, name, description, numEmployees, logoUrl }) {
+		
 		const duplicateCheck = await db.query(
 			`SELECT handle
            FROM companies
