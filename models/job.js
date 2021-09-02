@@ -37,47 +37,47 @@ class Job {
 		const result = await db.query(
 			`SELECT id, title, salary, equity, company_handle AS "companyHandle"
            FROM jobs
-           ORDER BY company_handle`
+           ORDER BY title`
 		);
 		return result.rows;
 	}
 
-	// 	/** Find all companies filtered for any or all of:
-	//    * - minEmployees
-	//    * - maxEmployees
-	//    * - nameLike.
-	//    *
-	//    * Returns [{ handle, name, description, numEmployees, logoUrl }, ...]
-	//    * */
+	/** Find all jobs filtered for any or all of:
+	   * - title
+	   * - minSalary
+	   * - hasEquity
+	   *
+	   * Returns [{ id, title, salary, equity, companyHandle }, ...]
+	   * */
 
-	// 	static async findAllFiltered(minEmployees, maxEmployees, nameLike) {
-	// 		const companiesRes = await db.query(
-	// 			`SELECT handle,
-	//                   name,
-	//                   description,
-	//                   num_employees AS "numEmployees",
-	//                   logo_url AS "logoUrl"
-	//            FROM companies
-	//            ORDER BY name`
-	// 		);
+	static async findAllFiltered(title, minSalary, hasEquity) {
+		const jobsRes = await db.query(
+			`SELECT id,
+	                  title,
+	                  salary,
+					  equity,
+	                  company_handle AS "companyHandle"
+	           FROM jobs
+	           ORDER BY title`
+		);
 
-	// 		let companiesFiltered = companiesRes.rows;
-	// 		console.log(companiesFiltered);
+		let jobsFiltered = jobsRes.rows;
+		console.log(jobsFiltered);
 
-	// 		if (nameLike) {
-	// 			companiesFiltered = companiesFiltered.filter(c => c.name.toLowerCase().includes(nameLike.toLowerCase()));
-	// 		}
+		if (title) {
+			jobsFiltered = jobsFiltered.filter(j => j.title.toLowerCase().includes(title.toLowerCase()));
+		}
 
-	// 		if (minEmployees) {
-	// 			companiesFiltered = companiesFiltered.filter(c => c.numEmployees >= minEmployees);
-	// 		}
+		if (minSalary) {
+			jobsFiltered = jobsFiltered.filter(j => j.salary >= minSalary);
+		}
 
-	// 		if (maxEmployees) {
-	// 			companiesFiltered = companiesFiltered.filter(c => c.numEmployees <= maxEmployees);
-	// 		}
+		if (hasEquity) {
+			jobsFiltered = jobsFiltered.filter(j => j.equity !== null && j.equity !== '0');
+		}
 
-	// 		return companiesFiltered;
-	// 	}
+		return jobsFiltered;
+	}
 
 	/** Given an id, return data about job.
    *

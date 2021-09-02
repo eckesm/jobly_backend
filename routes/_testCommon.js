@@ -3,13 +3,18 @@
 const db = require('../db.js');
 const User = require('../models/user');
 const Company = require('../models/company');
+const Job = require('../models/job');
 const { createToken } = require('../helpers/tokens');
+
+let testJob1;
 
 async function commonBeforeAll() {
 	// noinspection SqlWithoutWhere
 	await db.query('DELETE FROM users');
 	// noinspection SqlWithoutWhere
 	await db.query('DELETE FROM companies');
+	// noinspection SqlWithoutWhere
+	await db.query('DELETE FROM jobs');
 
 	await Company.create({
 		handle       : 'c1',
@@ -65,6 +70,25 @@ async function commonBeforeAll() {
 		password  : 'password1',
 		isAdmin   : true
 	});
+
+	await Job.create({
+		title         : 'j1',
+		salary        : 1,
+		equity        : 0,
+		companyHandle : 'c1'
+	});
+	await Job.create({
+		title         : 'j2',
+		salary        : 2,
+		equity        : 0,
+		companyHandle : 'c2'
+	});
+	await Job.create({
+		title         : 'j3',
+		salary        : 3,
+		equity        : 0.1,
+		companyHandle : 'c3'
+	});
 }
 
 async function commonBeforeEach() {
@@ -88,5 +112,5 @@ module.exports = {
 	commonAfterEach,
 	commonAfterAll,
 	u1Token,
-  a1Token
+	a1Token
 };
