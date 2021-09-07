@@ -5,6 +5,7 @@ const request = require('supertest');
 const db = require('../db.js');
 const app = require('../app');
 const User = require('../models/user');
+const Job = require('../models/job');
 
 const {
 	commonBeforeAll,
@@ -211,7 +212,8 @@ describe('GET /users/:username', function() {
 				firstName : 'U1F',
 				lastName  : 'U1L',
 				email     : 'user1@user.com',
-				isAdmin   : false
+				isAdmin   : false,
+				jobs      : []
 			}
 		});
 	});
@@ -229,7 +231,8 @@ describe('GET /users/:username', function() {
 				firstName : 'U1F',
 				lastName  : 'U1L',
 				email     : 'user1@user.com',
-				isAdmin   : false
+				isAdmin   : false,
+				jobs      : []
 			}
 		});
 	});
@@ -378,5 +381,52 @@ describe('DELETE /users/:username', function() {
 	test('user request: unauthorized if user missing', async function() {
 		const resp = await request(app).delete(`/users/nope`).set('authorization', `Bearer ${u1Token}`);
 		expect(resp.statusCode).toEqual(401);
+	});
+});
+
+/************************************** POST /:username/jobs/:jobId */
+
+describe('POST /:username/jobs/:jobId', function() {
+	const newJob = {
+		title         : 'new',
+		salary        : 50000,
+		equity        : 0,
+		companyHandle : 'c1'
+	};
+
+	test('fails for wrong user or non-admin', async function() {
+		let job = await Job.create(newJob);
+		const resp = await request(app).post(`/users/u2/jobs/${job.id}`).set('authorization', `Bearer ${u1Token}`);
+		expect(resp.statusCode).toEqual(401);
+	});
+
+	test('works for correct user, non-admin', async function() {
+		let job = await Job.create(newJob);
+		const resp = await request(app).post(`/users/u1/jobs/${job.id}`).set('authorization', `Bearer ${u1Token}`);
+		expect(resp.statusCode).toEqual(201);
+	});
+
+	test('works for admin', async function() {
+		let job = await Job.create(newJob);
+		const resp = await request(app).post(`/users/u1/jobs/${job.id}`).set('authorization', `Bearer ${a1Token}`);
+		expect(resp.statusCode).toEqual(201);
+	});
+
+	test('fails for duplicate', async function() {
+		let job = await Job.create(newJob);
+		const resp1 = await request(app).post(`/users/u1/jobs/${job.id}`).set('authorization', `Bearer ${u1Token}`);
+		const resp2 = await request(app).post(`/users/u1/jobs/${job.id}`).set('authorization', `Bearer ${u1Token}`);
+		expect(resp2.statusCode).toEqual(400);
+	});
+
+	test('fails for no user', async function() {
+		let job = await Job.create(newJob);
+		const resp = await request(app).post(`/users/no_user/jobs/${job.id}`).set('authorization', `Bearer ${a1Token}`);
+		expect(resp.statusCode).toEqual(404);
+	});
+
+	test('fails for no job', async function() {
+		const resp = await request(app).post(`/users/u1/jobs/0`).set('authorization', `Bearer ${u1Token}`);
+		expect(resp.statusCode).toEqual(404);
 	});
 });

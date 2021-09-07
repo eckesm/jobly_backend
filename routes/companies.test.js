@@ -192,7 +192,15 @@ describe('GET /companies/:handle', function() {
 				name         : 'C1',
 				description  : 'Desc1',
 				numEmployees : 1,
-				logoUrl      : 'http://c1.img'
+				logoUrl      : 'http://c1.img',
+				jobs         : [
+					{
+						equity : '0',
+						id     : expect.any(Number),
+						salary : 1,
+						title  : 'j1'
+					}
+				]
 			}
 		});
 	});
@@ -205,7 +213,15 @@ describe('GET /companies/:handle', function() {
 				name         : 'C2',
 				description  : 'Desc2',
 				numEmployees : 2,
-				logoUrl      : 'http://c2.img'
+				logoUrl      : 'http://c2.img',
+				jobs         : [
+					{
+						equity : '0',
+						id     : expect.any(Number),
+						salary : 2,
+						title  : 'j2'
+					}
+				]
 			}
 		});
 	});
@@ -293,7 +309,7 @@ describe('DELETE /companies/:handle', function() {
 		expect(resp.body).toEqual({ deleted: 'c1' });
 	});
 
-  test('fails for users not admins', async function() {
+	test('fails for users not admins', async function() {
 		const resp = await request(app).delete(`/companies/c1`).set('authorization', `Bearer ${u1Token}`);
 		expect(resp.statusCode).toEqual(401);
 	});
